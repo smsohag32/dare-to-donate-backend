@@ -4,7 +4,7 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
 
 ## 📖 API Base URL
 
-🔗 **Live API**: [https://api.daretodonate.com](https://api.daretodonate.com)
+🔗 **Live API**: [https://dare-to-donate-server.vercel.app](https://dare-to-donate-server.vercel.app)
 🔧 **Local Development**: `http://localhost:4500`
 
 ## 🚀 Features
@@ -23,7 +23,7 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
 
 #### 📤 Example Request
 
-`````json
+```json
 {
    "email": "sohag@gmail.com",
    "password": "11223344",
@@ -39,23 +39,24 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
       "country": "USA"
    }
 }
+```
 
-## 📤 Example response
+#### 📤 Example response
 
-````json
+```json
 {
-    "message": "User registered successfully",
-    "user": {
-        "_id": "67bb215d7b4ee4c3745f42cd",
-        "email": "sohag@gmail.com",
-        "is_active": true,
-        "phone": "01922026932",
-        "blood_group": "A+"
-    }
+   "message": "User registered successfully",
+   "user": {
+      "_id": "67bb215d7b4ee4c3745f42cd",
+      "email": "sohag@gmail.com",
+      "is_active": true,
+      "phone": "01922026932",
+      "blood_group": "A+"
+   }
 }
-`````
+```
 
-**POST** `/api/v1/auth/sign-in`
+**POST** `/api/v1/auth/sign-up`
 
 #### 📤 Example Request
 
