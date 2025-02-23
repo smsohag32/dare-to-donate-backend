@@ -10,6 +10,7 @@ export class AuthController {
          const newUser = await AuthService.signUp(newUserData);
          res.status(201).json({
             message: "User registered successfully",
+            httpStatusCode: 201,
             user: {
                _id: newUser.user._id,
                email: newUser.user.email,
@@ -21,6 +22,7 @@ export class AuthController {
       } catch (error: any) {
          res.status(400).json({
             message: error.message || "Error during sign up",
+            httpStatusCode: 400,
          });
       }
    }
@@ -34,12 +36,49 @@ export class AuthController {
          const { token, user } = await AuthService.signIn(email, password);
          res.status(200).json({
             message: "User logged in successfully",
+            httpStatusCode: 200,
             token, // JWT token
             user,
          });
       } catch (error: any) {
          res.status(400).json({
             message: error.message || "Error during sign in",
+            httpStatusCode: 400,
+         });
+      }
+   }
+   // send otp
+   public static async sendOtp(req: Request, res: Response): Promise<void> {
+      const { email } = req.body;
+
+      try {
+         const response = await AuthService.sendOtp(email);
+         res.status(200).json({
+            message: response.message,
+            httpStatusCode: 200,
+         });
+      } catch (error: any) {
+         res.status(400).json({
+            message: error.message || "Error sending OTP",
+         });
+      }
+   }
+
+   public static async verifyOtpReq(req: Request, res: Response): Promise<void> {
+      const { email, otp } = req.body;
+
+      try {
+         const { token, user } = await AuthService.otpVerify(email, otp);
+         res.status(200).json({
+            message: "User otp verified in successfully",
+            httpStatusCode: 200,
+            token, // JWT token
+            user,
+         });
+      } catch (error: any) {
+         res.status(400).json({
+            message: error.message || "Error during sign in",
+            httpStatusCode: 400,
          });
       }
    }

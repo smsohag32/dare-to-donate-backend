@@ -3,6 +3,9 @@ import User from "../models/user.model";
 import Profile from "../models/profile.model";
 import dotenv from "dotenv";
 import { AuthResponse } from "../types/auth.type";
+import crypto from "crypto";
+import { sendOtpEmail } from "../utils/emailSending"; // Import the sendOtpEmail function
+import mongoose from "mongoose";
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -10,6 +13,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
    throw new Error("JWT_SECRET environment variable is not defined");
 }
+
+const OTP_EXPIRATION_TIME = 10 * 60 * 1000; // OTP expiration time (10 minutes)
+
+// Simple in-memory OTP storage for this example
+let otpStorage: { [key: string]: { otp: string; expiresAt: number } } = {};
+
 interface singUpInterface {
    email: string;
    password: string;
@@ -25,6 +34,7 @@ interface singUpInterface {
       country?: string;
    };
 }
+
 interface SingUpResponse {
    message: string;
    user: {
@@ -35,14 +45,16 @@ interface SingUpResponse {
       blood_group: string;
    };
 }
+
 export class AuthService {
    // ✅ Register a new user (SignUp)
    public static async signUp(newUserData: singUpInterface): Promise<SingUpResponse> {
       try {
          const { email, password, first_name, last_name, phone, blood_group, address } =
             newUserData;
-         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+         // Validate email format
+         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
          if (!emailRegex.test(email)) {
             throw new Error("Invalid email format");
          }
@@ -55,35 +67,168 @@ export class AuthService {
 
          // Create new user
          const newUser = new User({ email, password });
-         await newUser.save();
+         const userData = await newUser.save();
+         console.log("userData._id:", userData._id);
 
-         const newProfile = new Profile({
-            user_id: newUser._id,
-            first_name: first_name || "",
-            last_name: last_name || "",
+         // Prepare user response data
+         const userResponseData = {
+            _id: newUser._id.toString(),
+            email: newUser.email,
+            is_active: newUser.is_active,
+            is_verified: newUser.is_verified,
             phone: phone || "",
             blood_group: blood_group || "",
-            address: address || {
-               street: "",
-               city: "",
-               state: "",
-               zip: "",
-               country: "",
-            },
+         };
+
+         // Optional: Create user profile
+         try {
+            const existingProfile = await Profile.findOne({ user_id: userData._id.toString() });
+
+            if (!existingProfile) {
+               console.log("Creating new profile for user_id:", userData._id);
+               const newProfile = new Profile({
+                  user_id: new mongoose.Types.ObjectId(userData._id),
+                  // Ensure user_id is set correctly
+                  first_name: first_name || "",
+                  last_name: last_name || "",
+                  phone: phone || "",
+                  blood_group: blood_group || "",
+                  address: address || {
+                     street: "",
+                     city: "",
+                     state: "",
+                     zip: "",
+                     country: "",
+                  },
+               });
+               await newProfile.save(); // Save the new profile
+               // Update user response data with profile details
+               userResponseData.phone = newProfile.phone;
+               userResponseData.blood_group = newProfile.blood_group;
+
+               // Mark the user as active after profile creation
+               newUser.is_active = true;
+               await newUser.save(); // Update the user's active status
+               userResponseData.is_active = true; // Reflect the updated status in the response
+            } else {
+               // Update only non-existing fields in the profile
+               if (!existingProfile.first_name && first_name)
+                  existingProfile.first_name = first_name;
+               if (!existingProfile.last_name && last_name) existingProfile.last_name = last_name;
+               if (!existingProfile.phone && phone) existingProfile.phone = phone;
+               if (!existingProfile.blood_group && blood_group)
+                  existingProfile.blood_group = blood_group;
+               if (!existingProfile.address && address) existingProfile.address = address;
+
+               await existingProfile.save();
+            }
+         } catch (profileError: any) {
+            console.error("Profile creation failed:", profileError.message);
+            // Proceed without failing the user registration
+         }
+
+         // Optional: Send OTP
+         setImmediate(async () => {
+            try {
+               const otp = crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
+               const expiresAt = Date.now() + OTP_EXPIRATION_TIME;
+
+               // Store OTP and expiration time
+               otpStorage[email] = { otp, expiresAt };
+
+               // Send OTP email
+               await sendOtpEmail(email, otp);
+            } catch (otpError: any) {
+               console.error("OTP sending failed:", otpError.message);
+               // Proceed without failing the user registration
+            }
          });
-         await newProfile.save();
+
+         // Return the successful registration response
          return {
-            message: "User registered successfully.",
-            user: {
-               _id: newUser._id.toString(),
-               email: newUser.email,
-               is_active: newUser.is_active,
-               phone: newProfile.phone,
-               blood_group: newProfile.blood_group,
-            },
+            message:
+               "User registered successfully. Please check your email to verify your account.",
+            user: userResponseData,
          };
       } catch (error: any) {
          throw new Error(error.message || "Error during sign up");
+      }
+   }
+
+   // ✅ OTP Verification Method
+   public static async otpVerify(email: string, otp: string): Promise<AuthResponse> {
+      try {
+         const otpRecord = otpStorage[email];
+
+         if (!otpRecord) {
+            throw new Error("OTP not found. Please request a new OTP.");
+         }
+
+         if (Date.now() > otpRecord.expiresAt) {
+            throw new Error("OTP has expired. Please request a new OTP.");
+         }
+
+         if (otpRecord.otp !== otp) {
+            throw new Error("Invalid OTP.");
+         }
+
+         // OTP is valid, update the user as verified
+         const user = await User.findOne({ email });
+         if (!user) {
+            throw new Error("User not found.");
+         }
+
+         user.is_verified = true;
+         await user.save();
+
+         // Clear OTP after successful verification
+         delete otpStorage[email];
+
+         const profile = await Profile.findOne({ user_id: user._id });
+
+         // Generate JWT token
+         const token = jwt.sign({ user_id: user._id, email: user.email }, JWT_SECRET as string, {
+            expiresIn: "1d",
+         });
+
+         return {
+            token,
+            user: {
+               _id: user._id.toString(),
+               email: user.email,
+               is_active: user.is_active,
+               is_verified: user.is_verified,
+               phone: profile?.phone || "",
+               blood_group: profile?.blood_group || "",
+            },
+         };
+      } catch (error: any) {
+         throw new Error(error.message || "Error during OTP verification");
+      }
+   }
+
+   // send otp
+   // ✅ Send OTP to user email
+   public static async sendOtp(email: string): Promise<{ message: string }> {
+      try {
+         const user = await User.findOne({ email });
+         if (!user) {
+            throw new Error("User not found.");
+         }
+
+         // Generate OTP
+         const otp = crypto.randomInt(100000, 999999).toString();
+         const expiresAt = Date.now() + OTP_EXPIRATION_TIME;
+
+         // Store OTP and expiration time
+         otpStorage[email] = { otp, expiresAt };
+
+         // Send OTP email
+         await sendOtpEmail(email, otp);
+
+         return { message: "OTP sent successfully." };
+      } catch (error: any) {
+         throw new Error(error.message || "Error sending OTP");
       }
    }
 
@@ -98,7 +243,7 @@ export class AuthService {
          // Compare password
          const isMatch = await user.comparePassword(password);
          if (!isMatch) {
-            throw new Error("Invalid email or password");
+            throw new Error("Invalid credentials.");
          }
 
          // Fetch user profile data
@@ -115,6 +260,7 @@ export class AuthService {
                _id: user._id.toString(),
                email: user.email,
                is_active: user.is_active,
+               is_verified: user.is_verified,
                phone: profile?.phone || "",
                blood_group: profile?.blood_group || "",
             },

@@ -82,3 +82,67 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
    }
 }
 ```
+
+**POST** `/api/v1/auth/otp-verify`
+
+#### 📤 Example Request
+
+```json
+{
+   "email": "sohag@gmail.com",
+   "otp": "123456"
+}
+```
+
+## 📤 Example response
+
+```json
+{
+   "message": "User otp verified in successfully",
+   "httpStatusCode": 200,
+   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+   "user": {
+      "_id": "65f123456789abcd12345678",
+      "email": "sohag@gmail.com",
+      "is_active": true,
+      "is_verified": true,
+      "phone": "+1234567890",
+      "blood_group": "O+"
+   }
+}
+```
+
+## 📤 Example response (Failed)
+
+```json
+{
+   "message": "Invalid OTP."
+}
+```
+
+```json
+{
+   "message": "OTP has expired. Please request a new OTP."
+}
+```
+
+### resend otp
+
+**POST** `/api/v1/auth/send-otp`
+
+#### 📤 Example Request
+
+```json
+{
+   "email": "sohag@gmail.com"
+}
+```
+
+## 📤 Example response
+
+```json
+{
+   "message": "Otp send successfully.",
+   "httpStatusCode": 200
+}
+```

@@ -6,6 +6,7 @@ export interface AuthResponse {
       _id: string;
       email: string;
       is_active: boolean;
+      is_verified: boolean;
       phone: string;
       blood_group: string;
    };

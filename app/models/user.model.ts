@@ -8,6 +8,7 @@ const UserSchema = new Schema<IUser>(
       password: { type: String, required: true },
       last_login: { type: Date },
       is_active: { type: Boolean, default: true },
+      is_verified: { type: Boolean, default: false },
    },
    { timestamps: true }
 );
@@ -30,5 +31,5 @@ UserSchema.methods.comparePassword = async function (candidatePassword: string):
    return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+const User = mongoose.models.users || mongoose.model<IUser>("users", UserSchema);
 export default User;
