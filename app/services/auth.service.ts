@@ -102,10 +102,10 @@ export class AuthService {
          }
 
          // Fetch user profile data
-         const profile = await Profile.findOne({ userId: user._id });
+         const profile = await Profile.findOne({ user_id: user._id });
 
          // Generate JWT token
-         const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET as string, {
+         const token = jwt.sign({ user_id: user._id, email: user.email }, JWT_SECRET as string, {
             expiresIn: "1d",
          });
 

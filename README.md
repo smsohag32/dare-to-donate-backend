@@ -77,8 +77,8 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
       "_id": "67bb215d7b4ee4c3745f42cd",
       "email": "sohag@gmail.com",
       "is_active": true,
-      "phone": "",
-      "blood_group": ""
+      "phone": "01922026932",
+      "blood_group": "A+"
    }
 }
 ```

@@ -35,7 +35,7 @@ export class AuthController {
          res.status(200).json({
             message: "User logged in successfully",
             token, // JWT token
-            user, // User object containing firstName, lastName, etc.
+            user,
          });
       } catch (error: any) {
          res.status(400).json({
