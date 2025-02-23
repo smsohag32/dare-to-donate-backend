@@ -17,42 +17,67 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
 
 ---
 
-# API documentation
+#### 📌 Api Documentation
 
-# 1. Sign-up Of A User
+**POST** `/api/v1/auth/sign-up`
 
-This API allows a user to sign up.
+#### 📤 Example Request
 
-## 📌 URL
+`````json
+{
+   "email": "sohag@gmail.com",
+   "password": "11223344",
+   "first_name": "Sohag",
+   "last_name": "Sheik",
+   "phone": "01922026932",
+   "blood_group": "A+",
+   "address": {
+      "street": "123 Main St",
+      "city": "Somewhere",
+      "state": "CA",
+      "zip": "90001",
+      "country": "USA"
+   }
+}
 
-**POST** `/auth/sign-up`
-
----
-
-## 📤 Example Request
+## 📤 Example response
 
 ````json
 {
-  "name": "John Doe",
-  "email": "b4@example.com",
-  "password": "mypassword"
+    "message": "User registered successfully",
+    "user": {
+        "_id": "67bb215d7b4ee4c3745f42cd",
+        "email": "sohag@gmail.com",
+        "is_active": true,
+        "phone": "01922026932",
+        "blood_group": "A+"
+    }
 }
+`````
 
+**POST** `/api/v1/auth/sign-in`
 
-## 📦 Installation
+#### 📤 Example Request
 
-```bash
-# Clone the repository
-git clone https://github.com/smsohag32/dare-to-donate-backend.git
+```json
+{
+   "email": "sohag@gmail.com",
+   "password": "11223344"
+}
+```
 
-# Navigate to the project directory
-cd dare-to-donate-backend
+## 📤 Example response
 
-# Install dependencies
-npm install
-
-# Create a .env file and add the required environment variables
-cp .env.example .env
-
-npm start
-````
+```json
+{
+   "message": "User logged in successfully",
+   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2JiMjE1ZDdiNGVlNGMzNzQ1ZjQyY2QiLCJlbWFpbCI6InNvaGFnQGdtYWlsLmNvbSIsImlhdCI6MTc0MDMxNzA5NiwiZXhwIjoxNzQwNDAzNDk2fQ.GEYUP28R4_2OK5wsGO0ClSPf-jAsFFuQKqbxP_0Y1Ak",
+   "user": {
+      "_id": "67bb215d7b4ee4c3745f42cd",
+      "email": "sohag@gmail.com",
+      "is_active": true,
+      "phone": "",
+      "blood_group": ""
+   }
+}
+```
