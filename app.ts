@@ -5,7 +5,7 @@ import morgan from "morgan";
 import mainRoute from "./app/routes/main.routes";
 const app = express();
 dotenv.config();
-const port = process.env.PORT || 3100;
+const port = process.env.PORT || 4500;
 
 import { connectDb } from "./app/config/dbConfig";
 
