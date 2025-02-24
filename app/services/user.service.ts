@@ -2,6 +2,7 @@ import User from "../models/user.model";
 import Profile from "../models/profile.model";
 import mongoose from "mongoose";
 import { ResponseDTO } from "../dto/response.dto";
+import { deleteImageFromCloud } from "../utils/uploadImage";
 
 export class UserService {
    // ✅ Update user details in Profile table
@@ -19,6 +20,10 @@ export class UserService {
             profile = new Profile({ user_id: new mongoose.Types.ObjectId(userId) });
          }
 
+         // check already image save or not
+         if (updateData?.profile_image && profile?.profile_image) {
+            await deleteImageFromCloud([profile?.profile_image]);
+         }
          // Update fields only if they are provided
          Object.keys(updateData).forEach((key) => {
             if (updateData[key] !== undefined) {
@@ -45,6 +50,26 @@ export class UserService {
          const profile = await Profile.findOne({ user_id: userId });
 
          return ResponseDTO.success("User details retrieved successfully", { user, profile });
+      } catch (error: any) {
+         return ResponseDTO.error(error.message || "Error fetching user details");
+      }
+   }
+
+   public static async deleteProfileImage(userId: string): Promise<any> {
+      try {
+         const profile = await Profile.findOne({ user_id: userId });
+         if (!profile) {
+            return ResponseDTO.error("User not found", 404);
+         }
+
+         if (profile?.profile_image) {
+            await deleteImageFromCloud([profile?.profile_image]);
+         }
+
+         profile.profile_image = "";
+         await profile.save();
+
+         return ResponseDTO.success("User profile image remove successfully.", profile);
       } catch (error: any) {
          return ResponseDTO.error(error.message || "Error fetching user details");
       }
