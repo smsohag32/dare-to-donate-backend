@@ -33,8 +33,8 @@ const ProfileSchema = new Schema<IProfile>(
          zip: { type: String, required: false },
          country: { type: String, required: false },
       },
-      last_donation_date: { type: Date, required: false }, // Optional
-      available_donate: { type: Boolean, default: true, required: false }, // Optional
+      last_donation_date: { type: Date, required: false },
+      available_donate: { type: Boolean, default: true, required: false },
    },
    { timestamps: true }
 );

@@ -25,6 +25,7 @@ interface singUpInterface {
    first_name?: string;
    last_name?: string;
    phone?: string;
+   last_donation_date?: string;
    blood_group?: string;
    address?: {
       street?: string;
@@ -50,8 +51,16 @@ export class AuthService {
    // ✅ Register a new user (SignUp)
    public static async signUp(newUserData: singUpInterface): Promise<SingUpResponse> {
       try {
-         const { email, password, first_name, last_name, phone, blood_group, address } =
-            newUserData;
+         const {
+            email,
+            password,
+            first_name,
+            last_name,
+            phone,
+            blood_group,
+            last_donation_date,
+            address,
+         } = newUserData;
 
          // Validate email format
          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -93,6 +102,7 @@ export class AuthService {
                   last_name: last_name || "",
                   phone: phone || "",
                   blood_group: blood_group || "",
+                  last_donation_date: last_donation_date || "",
                   address: address || {
                      street: "",
                      city: "",
@@ -101,15 +111,14 @@ export class AuthService {
                      country: "",
                   },
                });
-               await newProfile.save(); // Save the new profile
-               // Update user response data with profile details
+               await newProfile.save();
                userResponseData.phone = newProfile.phone;
                userResponseData.blood_group = newProfile.blood_group;
 
                // Mark the user as active after profile creation
                newUser.is_active = true;
                await newUser.save(); // Update the user's active status
-               userResponseData.is_active = true; // Reflect the updated status in the response
+               userResponseData.is_active = true;
             } else {
                // Update only non-existing fields in the profile
                if (!existingProfile.first_name && first_name)
