@@ -64,16 +64,47 @@ export class AuthController {
       }
    }
 
+   public static async requestRestOtp(req: Request, res: Response): Promise<void> {
+      const { email } = req.body;
+
+      try {
+         const response = await AuthService.requestPasswordReset(email);
+         res.status(200).json({
+            message: response.message,
+            httpStatusCode: 200,
+         });
+      } catch (error: any) {
+         res.status(400).json({
+            message: error.message || "Error sending OTP",
+         });
+      }
+   }
+
    public static async verifyOtpReq(req: Request, res: Response): Promise<void> {
       const { email, otp } = req.body;
 
       try {
-         const { token, user } = await AuthService.otpVerify(email, otp);
+         const { message } = await AuthService.verifyResetOtp(email, otp);
          res.status(200).json({
-            message: "User otp verified in successfully",
+            message: message,
             httpStatusCode: 200,
-            token, // JWT token
-            user,
+         });
+      } catch (error: any) {
+         res.status(400).json({
+            message: error.message || "Error during sign in",
+            httpStatusCode: 400,
+         });
+      }
+   }
+
+   public static async setNewPassword(req: Request, res: Response): Promise<void> {
+      const { email, new_password } = req.body;
+
+      try {
+         const { message } = await AuthService.resetPassword(email, new_password);
+         res.status(200).json({
+            message: message,
+            httpStatusCode: 200,
          });
       } catch (error: any) {
          res.status(400).json({

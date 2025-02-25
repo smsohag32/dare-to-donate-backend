@@ -134,83 +134,13 @@ export class AuthService {
             // Proceed without failing the user registration
          }
 
-         // Optional: Send OTP
-         setImmediate(async () => {
-            try {
-               const otp = crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
-               const expiresAt = Date.now() + OTP_EXPIRATION_TIME;
-
-               // Store OTP and expiration time
-               otpStorage[email] = { otp, expiresAt };
-
-               // Send OTP email
-               await sendOtpEmail(email, otp);
-            } catch (otpError: any) {
-               console.error("OTP sending failed:", otpError.message);
-               // Proceed without failing the user registration
-            }
-         });
-
          // Return the successful registration response
          return {
-            message:
-               "User registered successfully. Please check your email to verify your account.",
+            message: "User registered successfully",
             user: userResponseData,
          };
       } catch (error: any) {
          throw new Error(error.message || "Error during sign up");
-      }
-   }
-
-   // ✅ OTP Verification Method
-   public static async otpVerify(email: string, otp: string): Promise<AuthResponse> {
-      try {
-         const otpRecord = otpStorage[email];
-
-         if (!otpRecord) {
-            throw new Error("OTP not found. Please request a new OTP.");
-         }
-
-         if (Date.now() > otpRecord.expiresAt) {
-            throw new Error("OTP has expired. Please request a new OTP.");
-         }
-
-         if (otpRecord.otp !== otp) {
-            throw new Error("Invalid OTP.");
-         }
-
-         // OTP is valid, update the user as verified
-         const user = await User.findOne({ email });
-         if (!user) {
-            throw new Error("User not found.");
-         }
-
-         user.is_verified = true;
-         await user.save();
-
-         // Clear OTP after successful verification
-         delete otpStorage[email];
-
-         const profile = await Profile.findOne({ user_id: user._id });
-
-         // Generate JWT token
-         const token = jwt.sign({ user_id: user._id, email: user.email }, JWT_SECRET as string, {
-            expiresIn: "1d",
-         });
-
-         return {
-            token,
-            user: {
-               _id: user._id.toString(),
-               email: user.email,
-               is_active: user.is_active,
-               is_verified: user.is_verified,
-               phone: profile?.phone || "",
-               blood_group: profile?.blood_group || "",
-            },
-         };
-      } catch (error: any) {
-         throw new Error(error.message || "Error during OTP verification");
       }
    }
 
@@ -326,18 +256,16 @@ export class AuthService {
    // ✅ Reset Password After OTP Verification
    public static async resetPassword(
       email: string,
-      newPassword: string
+      new_password: string
    ): Promise<{ message: string }> {
       try {
          const user = await User.findOne({ email });
          if (!user) {
             throw new Error("User not found.");
          }
-
-         user.password = newPassword;
+         user.password = new_password;
          await user.save();
 
-         // Clear OTP after successful reset
          delete otpStorage[email];
 
          return {
