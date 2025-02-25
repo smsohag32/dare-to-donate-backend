@@ -15,7 +15,7 @@ const ProfileSchema = new Schema<IProfile>(
          required: false,
          default: "",
       },
-      profile_image: { type: String, default: "", required: false }, // Optional
+      profile_image: { type: String, default: "", required: false },
       phone: {
          type: String,
          match: /^[+0-9]{1}[0-9\s\-\(\)]{9,20}$/,

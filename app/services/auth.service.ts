@@ -14,7 +14,7 @@ if (!JWT_SECRET) {
    throw new Error("JWT_SECRET environment variable is not defined");
 }
 
-const OTP_EXPIRATION_TIME = 10 * 60 * 1000;
+const OTP_EXPIRATION_TIME = 2 * 60 * 1000;
 let otpStorage: { [key: string]: { otp: string; expiresAt: number } } = {};
 
 interface singUpInterface {
