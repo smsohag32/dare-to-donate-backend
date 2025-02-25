@@ -4,7 +4,7 @@ import Profile from "../models/profile.model";
 import dotenv from "dotenv";
 import { AuthResponse } from "../types/auth.type";
 import crypto from "crypto";
-import { sendOtpEmail } from "../utils/emailSending"; // Import the sendOtpEmail function
+import { sendOtpEmail } from "../utils/emailSending";
 import mongoose from "mongoose";
 
 dotenv.config();
@@ -14,9 +14,7 @@ if (!JWT_SECRET) {
    throw new Error("JWT_SECRET environment variable is not defined");
 }
 
-const OTP_EXPIRATION_TIME = 10 * 60 * 1000; // OTP expiration time (10 minutes)
-
-// Simple in-memory OTP storage for this example
+const OTP_EXPIRATION_TIME = 10 * 60 * 1000;
 let otpStorage: { [key: string]: { otp: string; expiresAt: number } } = {};
 
 interface singUpInterface {
@@ -276,6 +274,77 @@ export class AuthService {
          };
       } catch (error: any) {
          throw new Error(error.message || "Error during sign in");
+      }
+   }
+
+   public static async requestPasswordReset(email: string): Promise<{ message: string }> {
+      try {
+         const user = await User.findOne({ email });
+         if (!user) {
+            throw new Error("User not found.");
+         }
+
+         // Generate OTP
+         const otp = crypto.randomInt(100000, 999999).toString();
+         const expiresAt = Date.now() + OTP_EXPIRATION_TIME;
+
+         // Store OTP and expiration time
+         otpStorage[email] = { otp, expiresAt };
+
+         // Send OTP email
+         await sendOtpEmail(email, otp);
+
+         return { message: "OTP sent successfully for password reset." };
+      } catch (error: any) {
+         throw new Error(error.message || "Error sending OTP for password reset");
+      }
+   }
+
+   // ✅ Verify OTP for Password Reset
+   public static async verifyResetOtp(email: string, otp: string): Promise<{ message: string }> {
+      try {
+         const otpRecord = otpStorage[email];
+
+         if (!otpRecord) {
+            throw new Error("OTP not found. Please request a new OTP.");
+         }
+
+         if (Date.now() > otpRecord.expiresAt) {
+            throw new Error("OTP has expired. Please request a new OTP.");
+         }
+
+         if (otpRecord.otp !== otp) {
+            throw new Error("Invalid OTP.");
+         }
+
+         return { message: "OTP verified successfully. You can now reset your password." };
+      } catch (error: any) {
+         throw new Error(error.message || "Error verifying OTP");
+      }
+   }
+
+   // ✅ Reset Password After OTP Verification
+   public static async resetPassword(
+      email: string,
+      newPassword: string
+   ): Promise<{ message: string }> {
+      try {
+         const user = await User.findOne({ email });
+         if (!user) {
+            throw new Error("User not found.");
+         }
+
+         user.password = newPassword;
+         await user.save();
+
+         // Clear OTP after successful reset
+         delete otpStorage[email];
+
+         return {
+            message: "Password reset successfully. You can now log in with the new password.",
+         };
+      } catch (error: any) {
+         throw new Error(error.message || "Error resetting password");
       }
    }
 }

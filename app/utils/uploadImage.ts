@@ -22,7 +22,6 @@ export const uploadImageToCloud = async (files: UploadedFile[]): Promise<string[
 
       const results = await Promise.all(uploadPromises);
 
-      // Remove local files after successful upload
       files.forEach((file) => fs.unlinkSync(file.path));
 
       return results.map((result) => result.secure_url);
@@ -35,10 +34,9 @@ export const deleteImageFromCloud = async (imageUrls: string[]): Promise<void> =
    try {
       const deletePromises = imageUrls.map((url) => {
          const publicId = url.split("/").pop()?.split(".")[0];
-         if (!publicId) return Promise.resolve(); // Skip if no valid public ID
+         if (!publicId) return Promise.resolve()
          return cloudinary.v2.uploader.destroy(publicId);
       });
-
       await Promise.all(deletePromises);
    } catch (error) {
       console.error("Failed to delete images from Cloudinary", error);

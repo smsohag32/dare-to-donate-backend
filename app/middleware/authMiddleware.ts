@@ -7,7 +7,7 @@ if (!JWT_SECRET) {
    throw new Error("JWT_SECRET is required.");
 }
 
-// ✅ Extend Express Request Type
+// Extend Express Request Type
 declare module "express-serve-static-core" {
    interface Request {
       user?: any;

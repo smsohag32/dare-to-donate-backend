@@ -6,10 +6,12 @@ import path from "path";
 
 dotenv.config();
 
-const uploadDir = path.resolve(__dirname, "../uploads");
+const uploadDir = path.resolve("/tmp/uploads");
+
 if (!fs.existsSync(uploadDir)) {
    fs.mkdirSync(uploadDir, { recursive: true });
 }
+
 const storage: StorageEngine = multer.diskStorage({
    destination: (
       req: Request,
