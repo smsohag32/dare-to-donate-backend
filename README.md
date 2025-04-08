@@ -31,13 +31,7 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
    "last_name": "Sheik",
    "phone": "01922026932",
    "blood_group": "A+",
-   "address": {
-      "street": "123 Main St",
-      "city": "Somewhere",
-      "state": "CA",
-      "zip": "90001",
-      "country": "USA"
-   }
+   "address": "Dhaka"
 }
 ```
 
@@ -161,13 +155,7 @@ Dare To Donate is a backend service that enables users to **donate blood**, **re
    "last_name": "Sheik",
    "phone": "01922026932",
    "blood_group": "A+",
-   "address": {
-      "street": "123 Main St",
-      "city": "Somewhere",
-      "state": "CA",
-      "zip": "90001",
-      "country": "USA"
-   }
+   "address": "Dhaka"
 }
 ```
 
@@ -185,13 +173,7 @@ binary data
    "message": "User profile updated successfully",
    "httpStatusCode": 200,
    "data": {
-      "address": {
-         "street": "123 Main St",
-         "city": "Somewhere",
-         "state": "CA",
-         "zip": "90001",
-         "country": "USA"
-      },
+      "address": "Dhaka",
       "_id": "67bb5617f20e34dc23d70d29",
       "first_name": "Mohammad Sohag",
       "last_name": "Sheik",
@@ -210,5 +192,3 @@ binary data
 # Get User Details by ID
 
 **GET** `/api/v1/user/{userId}`
-
-

@@ -9,13 +9,7 @@ export interface IProfile extends mongoose.Document {
    profile_image?: string;
    phone?: string;
    secondary_phone?: string;
-   address?: {
-      street?: string;
-      city?: string;
-      state?: string;
-      zip?: string;
-      country?: string;
-   };
+   address?: string;
    last_donation_date?: Date;
    available_donate?: boolean;
    createdAt?: Date;

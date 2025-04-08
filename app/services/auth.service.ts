@@ -25,13 +25,7 @@ interface singUpInterface {
    phone?: string;
    last_donation_date?: string;
    blood_group?: string;
-   address?: {
-      street?: string;
-      city?: string;
-      state?: string;
-      zip?: string;
-      country?: string;
-   };
+   address?: string;
 }
 
 interface SingUpResponse {
@@ -101,13 +95,7 @@ export class AuthService {
                   phone: phone || "",
                   blood_group: blood_group || "",
                   last_donation_date: last_donation_date || "",
-                  address: address || {
-                     street: "",
-                     city: "",
-                     state: "",
-                     zip: "",
-                     country: "",
-                  },
+                  address: address || "",
                });
                await newProfile.save();
                userResponseData.phone = newProfile.phone;

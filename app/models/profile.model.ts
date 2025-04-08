@@ -27,11 +27,7 @@ const ProfileSchema = new Schema<IProfile>(
          required: false, // Optional
       },
       address: {
-         street: { type: String, required: false },
-         city: { type: String, required: false },
-         state: { type: String, required: false },
-         zip: { type: String, required: false },
-         country: { type: String, required: false },
+         type: String,
       },
       last_donation_date: { type: Date, required: false },
       available_donate: { type: Boolean, default: true, required: false },
