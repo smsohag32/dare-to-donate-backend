@@ -32,7 +32,7 @@ class RequestService {
    public static async getRequestsByUser(userId: string) {
       try {
          const request = await RequestModel.find({ request_maker: userId }).populate(
-            "request_make donor_id"
+            "request_maker donor_id"
          );
          return ResponseDTO.success("Requests retrieved successfully.", request);
       } catch (error: any) {

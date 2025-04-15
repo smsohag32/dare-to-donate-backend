@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import RequestService from "../services/request.service";
 
 class RequestController {
-   // Create a new request
    public static async createRequest(req: Request, res: Response): Promise<void> {
       try {
          const newRequestData = req.body;
@@ -28,6 +27,9 @@ class RequestController {
    public static async getRequestsByUser(req: Request, res: Response): Promise<void> {
       try {
          const userId = req.params.userId;
+         if (!userId) {
+            res.status(400).json({ message: "User ID is required" });
+         }
          const result = await RequestService.getRequestsByUser(userId);
          res.status(result.httpStatusCode || 500).json(result);
       } catch (error: any) {

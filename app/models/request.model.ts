@@ -1,19 +1,11 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-interface IAddress {
-   street?: string;
-   city?: string;
-   state?: string;
-   zip?: string;
-   country?: string;
-}
-
 interface IRequest extends Document {
    request_maker: mongoose.Schema.Types.ObjectId;
    donor_id: mongoose.Schema.Types.ObjectId;
    status: "pending" | "accept" | "declined" | "donate";
    hospital: string;
-   address?: IAddress;
+   address?: string;
    note: string;
 }
 
@@ -37,11 +29,7 @@ const RequestSchema = new Schema<IRequest>(
       },
       hospital: { type: String, required: true },
       address: {
-         street: { type: String, required: false },
-         city: { type: String, required: false },
-         state: { type: String, required: false },
-         zip: { type: String, required: false },
-         country: { type: String, required: false },
+         type: String,
       },
       note: { type: String, default: "", required: false },
    },
