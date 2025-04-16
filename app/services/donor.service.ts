@@ -5,7 +5,7 @@ export class DonorService {
    public static async getDonors(
       page: number = 1,
       limit: number = 10,
-      blood_group?: string | string[], 
+      blood_group?: string | string[],
       searchText?: string
    ) {
       try {
@@ -56,6 +56,7 @@ export class DonorService {
             totalPages: Math.ceil(totalDonors / limit),
             totalDonors,
             donors: donors.map((donor) => ({
+               _id: donor.user_id.toString(),
                name: `${donor.first_name} ${donor.last_name}`.trim(),
                blood_group: donor.blood_group,
                phone: donor.phone,

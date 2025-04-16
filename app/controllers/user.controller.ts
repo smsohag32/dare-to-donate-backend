@@ -11,8 +11,6 @@ export class UserController {
          if (req.file) {
             imageUrls = await uploadImageToCloud([req.file]);
          }
-
-         console.log(imageUrls);
          const content = JSON.parse(req.body.content);
          const updateData = {
             profile_image: imageUrls?.length > 0 ? imageUrls[0] : "",
