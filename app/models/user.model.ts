@@ -7,6 +7,7 @@ const UserSchema = new Schema<IUser>(
       email: { type: String, required: true, unique: true, trim: true },
       password: { type: String, required: true },
       last_login: { type: Date },
+      role: { type: String, default: "user" },
       is_active: { type: Boolean, default: true },
       is_verified: { type: Boolean, default: false },
    },

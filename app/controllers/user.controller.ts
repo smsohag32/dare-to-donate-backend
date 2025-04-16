@@ -15,7 +15,7 @@ export class UserController {
          console.log(imageUrls);
          const content = JSON.parse(req.body.content);
          const updateData = {
-            profile_image: imageUrls[0] || "",
+            profile_image: imageUrls?.length > 0 ? imageUrls[0] : "",
             ...content,
          };
          const result = await UserService.updateUser(userId, updateData);

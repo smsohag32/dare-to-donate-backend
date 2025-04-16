@@ -187,7 +187,9 @@ export class AuthService {
                is_active: user.is_active,
                is_verified: user.is_verified,
                phone: profile?.phone || "",
+               role: user?.role || "",
                blood_group: profile?.blood_group || "",
+               profile_image: profile?.profile_image || "",
             },
          };
       } catch (error: any) {

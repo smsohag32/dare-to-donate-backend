@@ -37,7 +37,7 @@ export class AuthController {
          res.status(200).json({
             message: "User logged in successfully",
             httpStatusCode: 200,
-            token, // JWT token
+            token, 
             user,
          });
       } catch (error: any) {

@@ -16,7 +16,6 @@ export class UserService {
          let profile = await Profile.findOne({ user_id: userId });
 
          if (!profile) {
-            // Create a profile if it doesn't exist
             profile = new Profile({ user_id: new mongoose.Types.ObjectId(userId) });
          }
 
@@ -33,7 +32,18 @@ export class UserService {
 
          await profile.save();
 
-         return ResponseDTO.success("User profile updated successfully", profile);
+         const responseDto = {
+            _id: user._id.toString(),
+            email: user.email,
+            is_active: user.is_active,
+            is_verified: user.is_verified,
+            phone: profile?.phone || "",
+            role: user?.role || "",
+            blood_group: profile?.blood_group || "",
+            profile_image: profile?.profile_image || "",
+         };
+
+         return ResponseDTO.success("User profile updated successfully", responseDto);
       } catch (error: any) {
          return ResponseDTO.error(error.message || "Error updating user profile");
       }
