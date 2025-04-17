@@ -56,7 +56,8 @@ export class DonorService {
             totalPages: Math.ceil(totalDonors / limit),
             totalDonors,
             donors: donors.map((donor) => ({
-               _id: donor.user_id.toString(),
+               _id: donor._id.toString(),
+               user_id: donor.user_id,
                name: `${donor.first_name} ${donor.last_name}`.trim(),
                blood_group: donor.blood_group,
                phone: donor.phone,
