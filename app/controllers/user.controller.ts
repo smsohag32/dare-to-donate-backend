@@ -7,15 +7,18 @@ export class UserController {
    public static async updateUser(req: Request, res: Response): Promise<void> {
       const userId = req.params.id;
       try {
-         let imageUrls: any = [];
+         let imageUrls: any[] = [];
          if (req.file) {
             imageUrls = await uploadImageToCloud([req.file]);
          }
+
          const content = JSON.parse(req.body.content);
-         const updateData = {
-            profile_image: imageUrls?.length > 0 ? imageUrls[0] : "",
-            ...content,
-         };
+         const updateData: any = { ...content };
+
+         if (imageUrls.length > 0) {
+            updateData.profile_image = imageUrls[0];
+         }
+
          const result = await UserService.updateUser(userId, updateData);
          res.status(result.httpStatusCode).json(result);
       } catch (error: any) {

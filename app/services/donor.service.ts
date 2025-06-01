@@ -44,6 +44,7 @@ export class DonorService {
          // Fetch donor profiles with pagination and populate user details
          const donors = await Profile.find(filter)
             .populate("user_id", "email is_verified")
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
@@ -58,7 +59,7 @@ export class DonorService {
             donors: donors.map((donor) => ({
                _id: donor._id.toString(),
                user_id: donor.user_id,
-               name: `${donor.first_name} ${donor.last_name}`.trim(),
+               name: [donor.first_name, donor.last_name].filter(Boolean).join(" "),
                blood_group: donor.blood_group,
                phone: donor.phone,
                email: donor.user_id.email,

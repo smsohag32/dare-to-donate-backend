@@ -37,7 +37,7 @@ export class AuthController {
          res.status(200).json({
             message: "User logged in successfully",
             httpStatusCode: 200,
-            token, 
+            token,
             user,
          });
       } catch (error: any) {
@@ -47,6 +47,25 @@ export class AuthController {
          });
       }
    }
+   public static async socialSignIn(req: Request, res: Response): Promise<void> {
+      const { email, first_name, photoUrl = "", uId } = req.body;
+
+      try {
+         const { token, user } = await AuthService.socialSignIn(email, first_name, photoUrl, uId);
+         res.status(200).json({
+            message: "User logged in successfully",
+            httpStatusCode: 200,
+            token,
+            user,
+         });
+      } catch (error: any) {
+         res.status(400).json({
+            message: error.message || "Error during google login",
+            httpStatusCode: 400,
+         });
+      }
+   }
+
    // send otp
    public static async sendOtp(req: Request, res: Response): Promise<void> {
       const { email } = req.body;

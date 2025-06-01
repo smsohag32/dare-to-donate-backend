@@ -13,8 +13,9 @@ const ProfileSchema = new Schema<IProfile>(
          type: String,
          enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
          required: false,
-         default: "",
+         default: undefined,
       },
+
       profile_image: { type: String, default: "", required: false },
       phone: {
          type: String,

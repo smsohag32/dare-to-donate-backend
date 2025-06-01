@@ -40,7 +40,6 @@ interface SingUpResponse {
 }
 
 export class AuthService {
-   // ✅ Register a new user (SignUp)
    public static async signUp(newUserData: singUpInterface): Promise<SingUpResponse> {
       try {
          const {
@@ -132,8 +131,6 @@ export class AuthService {
       }
    }
 
-   // send otp
-   // ✅ Send OTP to user email
    public static async sendOtp(email: string): Promise<{ message: string }> {
       try {
          const user = await User.findOne({ email });
@@ -154,6 +151,75 @@ export class AuthService {
          return { message: "OTP sent successfully." };
       } catch (error: any) {
          throw new Error(error.message || "Error sending OTP");
+      }
+   }
+
+   public static async socialSignIn(
+      email: string,
+      first_name: string,
+      photoUrl: string,
+      uId: string
+   ): Promise<AuthResponse> {
+      try {
+         let user = await User.findOne({ email });
+
+         if (!user) {
+            user = new User({
+               email,
+               password: uId,
+               is_verified: true,
+               is_active: true,
+            });
+
+            await user.save();
+
+            const newProfile = new Profile({
+               user_id: user._id,
+               first_name,
+               profile_image: photoUrl,
+            });
+
+            await newProfile.save();
+         }
+
+         // At this point, either profile was just created or existed
+         const profile = await Profile.findOne({ user_id: user._id });
+
+         if (!profile) {
+            const fallbackProfile = new Profile({
+               user_id: user._id,
+               first_name,
+               profile_image: photoUrl,
+            });
+
+            await fallbackProfile.save();
+         }
+
+         const finalProfile = await Profile.findOne({ user_id: user._id });
+
+         // Generate JWT
+         const token = jwt.sign(
+            { user_id: user._id.toString(), email: user.email },
+            JWT_SECRET as string,
+            { expiresIn: "1d" }
+         );
+
+         return {
+            token,
+            user: {
+               _id: user._id.toString(),
+               email: user.email,
+               is_active: user.is_active,
+               is_verified: user.is_verified,
+               phone: finalProfile?.phone || "",
+               role: user?.role || "",
+               blood_group: finalProfile?.blood_group || "",
+               profile_image: finalProfile?.profile_image || photoUrl || "",
+            },
+         };
+      } catch (error: any) {
+         console.error("Error in socialSignIn:", error.message);
+         throw new Error(error.message || "Error during social sign in");
       }
    }
 
